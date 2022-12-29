@@ -53,14 +53,20 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v3
         with:
-          cache-from: type=registry,src=/tmp/.buildx-cache
-          cache-to: type=registry,ref=docker.io/marcelinc/zad1cache,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           platforms: linux/arm64/v8,linux/amd64, 
           context: ./
           file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
       
+      #Przenies cache'a
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
       #Przeslij do ghcr.io
       - name: Login to ghcr registry and push image
         run: |

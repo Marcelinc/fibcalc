@@ -43,7 +43,7 @@ jobs:
       - name: Login to ghcr
         uses: docker/login-action@v2
         with:
-          username: ${{ github.repository_owner }}
+          username: marcelinc
           password: ${{ secrets.GIT_HUB_TOKEN }}
 
       #Zbudowanie i wypchniecie obrazu do ghcr.io + przeslanie cache na DockerHub

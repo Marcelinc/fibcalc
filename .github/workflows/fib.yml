@@ -55,7 +55,7 @@ jobs:
         with:
           cache-from: type=registry,ref=docker.io/marcelinc/zad1cache
           cache-to: type=registry,ref=docker.io/marcelinc/zad1cache,mode=max
-          platforms: linux/arm/v7,linux/arm64/v8,linux/amd64, 
+          platforms: linux/arm64/v8,linux/amd64, 
           context: ./
           file: ./Dockerfile
           push: true

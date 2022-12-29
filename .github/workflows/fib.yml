@@ -20,21 +20,12 @@ jobs:
       - name: Docker Setup QEMU
         uses: docker/setup-qemu-action@v2
 
-      #Konfiguracja cachowania
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       #Metadane
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: name/app
+          images: ghcr.io/marcelinc/zadanie1Ad3
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -48,7 +39,14 @@ jobs:
           username: ${{secrets.DOCKER_HUB_USERNAME}}
           password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
 
-      #Zbudowanie i wypchniecie obrazu na Dockerhuba
+      #Logowanie do ghcr.io
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GIT_HUB_TOKEN }}
+
+      #Zbudowanie i wypchniecie obrazu do ghcr.io + przeslanie cache na DockerHub
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v3
@@ -60,16 +58,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-      
-      #Przenies cache'a
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          labels: ${{ steps.meta.outputs.labels }}
 
-      #Przeslij do ghcr.io
-      - name: Login to ghcr registry and push image
-        run: |
-          echo '${{ secrets.GIT_HUB_TOKEN }}' | docker login ghcr,io -u marcelinc --password-stdin
-          docker tag marcelinc/zadanie1 ghcr.io/marcelinc/zadanie1
-          docker push ghcr.io/marcelinc/zadanie1
